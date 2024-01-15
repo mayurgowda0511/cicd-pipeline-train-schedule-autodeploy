@@ -1,17 +1,12 @@
 pipeline {
     agent any
     environment {
-        //be sure to replace "bhavukm" with your own Docker Hub username
         DOCKER_IMAGE_NAME = "mayurgowda0511/train-schedule"
+        CANARY_REPLICAS = 1
     }
     stages {
-    //  stage('Build') {
-    //        steps {
-    //            echo 'Running build automation'
-    //            sh './gradlew build --no-daemon'
-    //            archiveArtifacts artifacts: 'dist/trainSchedule.zip'
-    //        }
-    //    }
+        // Build stage is commented out for simplicity
+
         stage('Build Docker Image') {
             when {
                 branch 'master'
@@ -25,6 +20,7 @@ pipeline {
                 }
             }
         }
+
         stage('Push Docker Image') {
             when {
                 branch 'master'
@@ -38,12 +34,10 @@ pipeline {
                 }
             }
         }
+
         stage('CanaryDeploy') {
             when {
                 branch 'master'
-            }
-            environment { 
-                CANARY_REPLICAS = 1
             }
             steps {
                 kubernetesDeploy(
@@ -53,16 +47,18 @@ pipeline {
                 )
             }
         }
+
         stage('DeployToProduction') {
             when {
                 branch 'master'
             }
-            environment { 
-                CANARY_REPLICAS = 0
-            }
             steps {
                 input 'Deploy to Production?'
                 milestone(1)
+                // Set CANARY_REPLICAS to 0 for production deployment
+                script {
+                    env.CANARY_REPLICAS = 0
+                }
                 kubernetesDeploy(
                     kubeconfigId: 'kubeconfig',
                     configs: 'train-schedule-kube-canary.yml',
