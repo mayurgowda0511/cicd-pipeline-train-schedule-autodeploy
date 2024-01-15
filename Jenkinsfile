@@ -12,16 +12,13 @@ pipeline {
                 branch 'master'
             }
             steps {
-                script {
-                    // Define the Docker image name with a tag
-                    def dockerImage = docker.image(DOCKER_IMAGE_NAME)
-                    
-                    // Build the Docker image
-                    dockerImage.build()
-
-                    // Tag the image with the build number and 'latest'
-                    dockerImage.tag("${env.BUILD_NUMBER}")
-                    dockerImage.tag("latest")
+                dir('path/to/your/project') {
+                    script {
+                        def dockerImage = docker.build(DOCKER_IMAGE_NAME)
+                        dockerImage.inside {
+                            sh 'echo Hello, World!'
+                        }
+                    }
                 }
             }
         }
@@ -32,7 +29,6 @@ pipeline {
             }
             steps {
                 script {
-                    // Push the Docker image to the registry
                     docker.withRegistry('https://registry.hub.docker.com', 'docker_hub_login') {
                         docker.image(DOCKER_IMAGE_NAME).push()
                     }
