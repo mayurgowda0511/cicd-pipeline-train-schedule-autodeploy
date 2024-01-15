@@ -8,9 +8,9 @@ pipeline {
         // Build stage is commented out for simplicity
 
         stage('Build Docker Image') {
-            when {
-                branch 'master'
-            }
+            //when {
+            //    branch 'master'
+            //}
             steps {
                 dir('path/to/your/project') {
                     script {
@@ -24,9 +24,9 @@ pipeline {
         }
 
         stage('Push Docker Image') {
-            when {
-                branch 'master'
-            }
+           // when {
+           //     branch 'master'
+           // }
             steps {
                 script {
                     docker.withRegistry('https://registry.hub.docker.com', 'docker_hub_login') {
@@ -37,9 +37,9 @@ pipeline {
         }
 
         stage('CanaryDeploy') {
-            when {
-                branch 'master'
-            }
+            //when {
+            //    branch 'master'
+            //}
             steps {
                 kubernetesDeploy(
                     kubeconfigId: 'kubeconfig',
@@ -50,9 +50,9 @@ pipeline {
         }
 
         stage('DeployToProduction') {
-            when {
-                branch 'master'
-            }
+            //when {
+            //    branch 'master'
+            //}
             steps {
                 input 'Deploy to Production?'
                 milestone(1)
